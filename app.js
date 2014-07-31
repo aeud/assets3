@@ -14,7 +14,6 @@ if (bucket && path) {
 
 	var re = /^\..*/;
 	var re1 = /\.([a-zA-Z0-9]*)$/;
-	var re2 = /^(.*)\/([a-zA-Z0-9\.]*)$/;
 
 	var walk = function(dir, done) {
 		var results = [];
@@ -35,9 +34,8 @@ if (bucket && path) {
 						} else {
 							results.push({
 								ext: re1.exec(file)[1],
-								relative: currentDir+file.replace(path, ''),
+								relative: currentDir + file.replace(path, ''),
 								absolute: file,
-								dir: dir + re2.exec(file)[1].replace(path, ''),
 							});
 							next();
 						}
