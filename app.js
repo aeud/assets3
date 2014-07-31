@@ -71,3 +71,48 @@ walk(path, function(err, files){
 	})
 })
 
+function guessType(ext) {
+	switch (ext) {
+	case 'jpg':
+		return 'image/jpeg';
+		break;
+	case 'jpeg':
+		return 'image/jpeg';
+		break;
+	case 'png':
+		return 'image/png';
+		break;
+	case 'gif':
+		return 'image/gif';
+		break;
+	case 'css':
+		return 'text/css';
+		break;
+	case 'js':
+		return 'application/x-javascript';
+		break;
+	default:
+		return 'image/jpeg';
+	}
+}
+function processFile(filePath, callback) {
+	fs.readFile(filePath, function(err, data){
+		putObject({
+			Bucket: 'cdn-asianvilla',
+			Key: filePath.replace('../web/s3/', ''),
+			ACL: 'public-read',
+			Body: data,
+			CacheControl: 'max-age=8000000',
+			ContentType: guessType(file.ext),
+		}, callback);
+	})
+	
+}
+function putObject(params, callback) {
+	console.log(params)
+	/*s3.putObject(params, function(err, data) {
+		if (err) throw err;
+		callback(null, true)
+	})*/
+}
+
