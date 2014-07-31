@@ -8,7 +8,8 @@
 	"dependencies": {
 		"underscore": "*",
 		"aws-sdk": "x",
-		"async": "x"
+		"async": "x",
+		"node-minify": "x"
 	},
 	"engines": {
 		"node": "0.10.x",
