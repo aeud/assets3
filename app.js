@@ -10,7 +10,6 @@ var bucket = process.argv[2];
 var path = process.argv[3];
 
 var readDir = function (dirPath, callback) {
-	console.log(dirPath)
 	fs.readdir(dirPath, function(err, files){
 		async.series(_.map(files, function(file, index){
 			var filePath = dirPath + '/' + file
@@ -23,7 +22,7 @@ var readDir = function (dirPath, callback) {
 						} else {
 							compress({
 								ext: /\.([a-zA-Z0-9]*)$/.exec(file)[1],
-								relative: currentDir + '/' + file.replace(path, ''),
+								relative: currentDir + filePath.replace(path, ''),
 								absolute: filePath,
 							}, callback);
 						}
@@ -38,7 +37,6 @@ var readDir = function (dirPath, callback) {
 var compress = function(file, callback) {
 	switch (file.ext) {
 	case 'css':
-		console.log(file)
 		new compressor.minify({
 			type: 'yui-css',
 			fileIn: file.absolute,
@@ -79,14 +77,26 @@ function guessType(ext) {
 	case 'gif':
 		return 'image/gif';
 		break;
-	case 'css':
-		return 'text/css';
-		break;
 	case 'js':
 		return 'application/x-javascript';
 		break;
+	case 'woff':
+		return 'application/x-font-woff';
+		break;
+	case 'ttf':
+		return 'application/x-font-ttf';
+		break;
+	case 'eot':
+		return 'application/vnd.ms-fontobject';
+		break;
+	case 'svg':
+		return 'image/svg+xml';
+		break;
+	case 'map':
+		return 'application/octet-stream';
+		break
 	default:
-		return 'image/jpeg';
+		return 'text/'+ext;
 	}
 }
 function processFile(file, callback) {
@@ -104,13 +114,13 @@ function processFile(file, callback) {
 
 }
 function putObject(params, callback) {
-	//console.log(params)
-	//s3.putObject(params, function(err, data) { if (err) throw err; })
-	callback(null, params)
+	console.log(params)
+	//callback(null, params)
+	s3.putObject(params, function(err, data) { if (err) throw err; callback(null, params) })
 }
 
 if (bucket && path) {
 	var currentDir = /\/([a-zA-Z0-9]*)$/.exec(path)[1];
-	readDir(path, function(err, results){ console.log(results) })
+	readDir(path, function(err, results){ })
 	
 } else console.log('node file/to/app.js bucket-name /directory/to/send/to/s3')
