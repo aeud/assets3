@@ -5,6 +5,7 @@ var compressor = require('node-minify');
 var AWS = require('aws-sdk');
 AWS.config.loadFromPath('./aws.json');
 var s3 = new AWS.S3();
+var zlib = require('zlib');
 
 var bucket = process.argv[2];
 var path = process.argv[3];
@@ -115,12 +116,34 @@ function processFile(file, callback) {
 }
 function putObject(params, callback) {
 	console.log(params)
-	//callback(null, params)
-	s3.putObject(params, function(err, data) { if (err) throw err; callback(null, params) })
+	//callback(null, params);
+	var params = params;
+	s3.putObject(params, function(err, data) {
+		if (err) throw err;
+		var p2 = params;
+		zlib.gzip(params.Body, function(err, buffer) {
+			var p3 = p2;
+			if (err) throw err;
+			p3.Key = p3.Key + '.gz';
+			p3.Body = buffer;
+			//p3.ContentType = 'binary/octet-stream';
+			p3.ContentEncoding = 'gzip';
+			console.log(p3)
+			s3.putObject(params, function(err, data) {
+				if (err) throw err;
+				callback(null, p3);
+			})
+			
+		})
+	})
+	
+	//s3.putObject(params, function(err, data) { if (err) throw err; callback(null, params) })
 }
 
 if (bucket && path) {
 	var currentDir = /\/([a-zA-Z0-9]*)$/.exec(path)[1];
-	readDir(path, function(err, results){ })
+	readDir(path, function(err, results){
+		if (err) throw err;
+	})
 	
 } else console.log('node file/to/app.js bucket-name /directory/to/send/to/s3')
